@@ -6,6 +6,7 @@ import { HospitalsPage } from '@/pages/HospitalsPage'
 import { DoctorsPage } from '@/pages/DoctorsPage'
 import { HotelsPage } from '@/pages/HotelsPage'
 import { TransportationPage } from '@/pages/TransportationPage'
+import { TherapyPage } from '@/pages/TherapyPage'
 import { ToursPage } from '@/pages/ToursPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
@@ -14,6 +15,7 @@ import { AssessmentResultsPage } from '@/pages/AssessmentResultsPage'
 import { CompanionAssessmentPage } from '@/pages/CompanionAssessmentPage'
 import { CompanionResultsPage } from '@/pages/CompanionResultsPage'
 import { ComponentsShowcase } from '@/pages/ComponentsShowcase'
+import { AdminDashboard } from '@/pages/AdminDashboard'
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
             <Route path="/doctors" element={<DoctorsPage />} />
             <Route path="/hotels" element={<HotelsPage />} />
             <Route path="/transportation" element={<TransportationPage />} />
+            <Route path="/therapy" element={<TherapyPage />} />
             <Route path="/tours" element={<ToursPage />} />
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/register" element={<RegisterPage />} />
@@ -35,6 +38,7 @@ function App() {
             <Route path="/companion/assessment" element={<CompanionAssessmentPage />} />
             <Route path="/companion/assessment/:id/results" element={<CompanionResultsPage />} />
             <Route path="/components" element={<ComponentsShowcase />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
         <Footer />

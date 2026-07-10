@@ -21,6 +21,7 @@ export const Navbar = () => {
     { label: 'Dokter', path: '/doctors', icon: FiUsers },
     { label: 'Hotel', path: '/hotels', icon: FiGrid },
     { label: 'Transport', path: '/transportation', icon: FiTruck },
+    { label: 'Terapi', path: '/therapy', icon: FiUsers },
     { label: 'Wisata', path: '/tours', icon: FiMapPin },
     { label: 'Assessment', path: '/assessment', icon: FiClipboard },
   ]

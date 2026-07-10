@@ -1,82 +1,17 @@
 import { useState } from 'react'
-
-const transportationData = [
-  {
-    id: 1,
-    name: 'Airport Transfer - Mobil Standar',
-    type: 'Airport Transfer',
-    description: 'Layanan antar dari bandara ke hotel/rumah sakit dengan mobil standar AC',
-    price: 250000,
-    duration: '30-40 menit',
-    passengers: '1-3 orang',
-    includes: ['Driver profesional', 'AC', 'Wifi', 'Mineral water'],
-    icon: '🚗'
-  },
-  {
-    id: 2,
-    name: 'Airport Transfer - Mobil Premium',
-    type: 'Airport Transfer',
-    description: 'Layanan antar premium dari bandara dengan mobil mewah dan driver berpengalaman',
-    price: 450000,
-    duration: '30-40 menit',
-    passengers: '1-4 orang',
-    includes: ['Driver profesional', 'AC Dingin', 'Wifi', 'Snacks & minuman', 'Phone charger'],
-    icon: '🚙'
-  },
-  {
-    id: 3,
-    name: 'Rental Mobil - Harian',
-    type: 'Rental Mobil',
-    description: 'Sewa mobil dengan driver untuk perjalanan harian Anda',
-    price: 400000,
-    duration: '24 jam',
-    passengers: '1-4 orang',
-    includes: ['Driver berpengalaman', 'AC', 'Wifi', 'Bensin', 'Asuransi'],
-    icon: '🚕'
-  },
-  {
-    id: 4,
-    name: 'Rental Mobil - 3 Hari',
-    type: 'Rental Mobil',
-    description: 'Paket sewa mobil 3 hari dengan harga special',
-    price: 900000,
-    duration: '3 x 24 jam',
-    passengers: '1-4 orang',
-    includes: ['Driver berpengalaman', 'AC', 'Wifi', 'Bensin', 'Asuransi', 'Free upgrade'],
-    icon: '🚕'
-  },
-  {
-    id: 5,
-    name: 'Ambulansi Privat',
-    type: 'Medical Transport',
-    description: 'Ambulansi dengan paramedic untuk kebutuhan medis khusus',
-    price: 750000,
-    duration: 'Per perjalanan',
-    passengers: 'Pasien + 1 pendamping',
-    includes: ['Paramedic profesional', 'Alat medis lengkap', 'AC', 'Monitoring kesehatan'],
-    icon: '🚑'
-  },
-  {
-    id: 6,
-    name: 'Jasa Antar Obat & Hasil Lab',
-    type: 'Delivery Service',
-    description: 'Layanan pengiriman obat dan hasil laboratorium ke hotel Anda',
-    price: 100000,
-    duration: '2-3 jam',
-    passengers: 'N/A',
-    includes: ['Same day delivery', 'Packaging aman', 'Driver terlatih', 'Free tracking'],
-    icon: '📦'
-  }
-]
+import { mockRentalCars } from '@/data/mockData'
 
 export const TransportationPage = () => {
   const [selectedType, setSelectedType] = useState<string>('All')
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const transportTypes = ['All', 'Airport Transfer', 'Rental Mobil', 'Medical Transport', 'Delivery Service']
+  const filterTypes = ['All', 'MPV', 'SUV', 'Minibus', 'Luxury']
   
-  const filteredTransport = selectedType === 'All' 
-    ? transportationData 
-    : transportationData.filter(t => t.type === selectedType)
+  const filteredRentals = mockRentalCars.filter(rental => {
+    const matchesType = selectedType === 'All' || rental.type === selectedType
+    const matchesSearch = rental.name.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesType && matchesSearch
+  })
 
   return (
     <div className="bg-white">
@@ -93,8 +28,17 @@ export const TransportationPage = () => {
       {/* Filter */}
       <section className="bg-green-50 py-8 px-4">
         <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="🔍 Cari kendaraan..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+            />
+          </div>
           <div className="flex flex-wrap gap-3 justify-center">
-            {transportTypes.map(type => (
+            {filterTypes.map(type => (
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
@@ -114,40 +58,43 @@ export const TransportationPage = () => {
       {/* Services List */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12">Layanan Transportasi Tersedia</h2>
+          <h2 className="text-3xl font-bold mb-12">Armada Kendaraan Kami</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {filteredTransport.map((service) => (
-              <div key={service.id} className="bg-white rounded shadow-lg hover:shadow-xl transition overflow-hidden">
+            {filteredRentals.map((rental) => (
+              <div key={rental.id} className="bg-white rounded shadow-lg hover:shadow-xl transition overflow-hidden">
                 <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-4xl mb-2">{service.icon}</div>
-                      <h3 className="text-xl font-bold">{service.name}</h3>
-                      <p className="text-green-100 text-sm mt-2">{service.type}</p>
+                      <div className="text-4xl mb-2">🚗</div>
+                      <h3 className="text-xl font-bold">{rental.name}</h3>
+                      <p className="text-green-100 text-sm mt-2">{rental.type}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold">Rp {service.price.toLocaleString('id-ID')}</div>
-                      <div className="text-green-100 text-sm">{service.duration}</div>
+                      <div className="text-2xl font-bold">Rp {rental.price_per_day.toLocaleString('id-ID')}/Hari</div>
+                      <div className="text-green-100 text-sm">Rp {rental.price_per_hour.toLocaleString('id-ID')}/Jam</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="p-6">
-                  <p className="text-gray-600 mb-4">{service.description}</p>
-
                   <div className="mb-4">
-                    <div className="font-semibold text-sm mb-2">👥 Kapasitas: {service.passengers}</div>
+                    <div className="font-semibold text-sm mb-2">👥 Kapasitas: {rental.passenger_capacity} penumpang</div>
                     <div className="text-sm text-gray-600">
-                      <div className="font-semibold mb-2">✨ Termasuk:</div>
+                      <div className="font-semibold mb-2">✨ Fasilitas:</div>
                       <ul className="space-y-1">
-                        {service.includes.map((inc, idx) => (
+                        {rental.facilities.map((facility, idx) => (
                           <li key={idx} className="flex items-center gap-2">
-                            <span>✓</span> {inc}
+                            <span>✓</span> {facility}
                           </li>
                         ))}
                       </ul>
                     </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-3 rounded mb-4 text-sm">
+                    <p className="text-gray-700"><strong>Driver:</strong> {rental.driver_name}</p>
+                    <p className="text-gray-700"><strong>Telepon:</strong> {rental.driver_phone}</p>
                   </div>
 
                   <button className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
@@ -157,6 +104,12 @@ export const TransportationPage = () => {
               </div>
             ))}
           </div>
+
+          {filteredRentals.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Tidak ada kendaraan yang sesuai dengan pencarian Anda</p>
+            </div>
+          )}
         </div>
       </section>
 
