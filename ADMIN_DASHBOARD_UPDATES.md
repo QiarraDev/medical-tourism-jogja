@@ -5,17 +5,39 @@ Admin Dashboard telah ditingkatkan dengan fitur lengkap untuk mengelola:
 - ✅ Dokter Spesialis & Terapi
 - ✅ Data Rental Kendaraan  
 - ✅ Program Terapi Medis
-- ✅ Rumah Sakit (View Only)
+- ✅ Rumah Sakit (FULL CRUD - baru!)
 
 ---
 
 ## 📊 New Features Added
 
-### 1. **Rental Management Tab** 🚗
-**Lokasi**: `/admin` → Tab "🚗 Rental"
+### 1. **Hospital Management Tab** 🏥 (NEW!)
+**Lokasi**: `/admin` → Tab "🏥 Rumah Sakit"
 
 **Fitur CRUD:**
-- ✅ Tambah rental baru
+- ✅ Tambah rumah sakit baru
+- ✅ Edit data rumah sakit (nama, alamat, kelas, rating, dll)
+- ✅ Hapus rumah sakit
+- ✅ Cari rumah sakit berdasarkan nama
+
+**Data yang Dikelola:**
+- Nama rumah sakit
+- Alamat lengkap
+- No telepon
+- Email
+- Website
+- Kelas RS (A, B, C, D)
+- Rating (0-5)
+- Jumlah review
+- Jam operasional
+- Status emergency & ambulans
+- Spesialisasi
+- Fasilitas
+
+---
+
+### 2. **Rental Management Tab** 🚗
+**Lokasi**: `/admin` → Tab "🚗 Rental"
 - ✅ Edit data rental (nama, tipe, harga, driver)
 - ✅ Hapus rental
 - ✅ Cari rental berdasarkan nama
@@ -39,7 +61,7 @@ Admin Dashboard telah ditingkatkan dengan fitur lengkap untuk mengelola:
 
 ---
 
-### 2. **Therapy Management Tab** 💆
+### 3. **Therapy Management Tab** 💆
 **Lokasi**: `/admin` → Tab "💆 Terapi"
 
 **Fitur CRUD:**
@@ -154,7 +176,7 @@ export interface Therapy {
 | Tab | Items | Status |
 |-----|-------|--------|
 | Dokter | 12 | ✅ Full CRUD |
-| Rumah Sakit | 3 | 📖 View Only |
+| Rumah Sakit | 3 | ✅ Full CRUD |
 | Rental | 6 | ✅ Full CRUD |
 | Terapi | 6 | ✅ Full CRUD |
 
@@ -178,6 +200,16 @@ Demo Mode: Active (no login required)
 1. Klik tab "💆 Terapi"
 2. Klik "Tambah Terapi Baru"
 3. Isi formulir (nama, jenis, harga, durasi)
+4. Klik "Simpan"
+
+### Edit/Hapus
+- Klik tombol **Edit** (🖊️) untuk mengubah data
+- Klik tombol **Hapus** (🗑️) untuk menghapus data
+
+### Menambah Rumah Sakit Baru
+1. Klik tab "🏥 Rumah Sakit"
+2. Klik "Tambah Rumah Sakit Baru"
+3. Isi formulir (nama, alamat, kelas, rating, dll)
 4. Klik "Simpan"
 
 ### Edit/Hapus

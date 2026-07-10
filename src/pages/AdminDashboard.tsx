@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX } from 'react-icons/fi'
 import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui'
 import { mockDoctors, mockHospitals, mockRentalCars, mockTherapies } from '@/data/mockData'
-import { Doctor, RentalCar, Therapy } from '@/types'
+import { Doctor, RentalCar, Therapy, Hospital } from '@/types'
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'rental' | 'therapy'>('doctors')
@@ -15,6 +15,13 @@ export function AdminDashboard() {
   const [doctorFormData, setDoctorFormData] = useState<Partial<Doctor>>({})
   const [searchDoctor, setSearchDoctor] = useState('')
   const [filterSpecialty, setFilterSpecialty] = useState('all')
+
+  // Hospital state
+  const [hospitals, setHospitals] = useState<Hospital[]>(mockHospitals)
+  const [editingHospitalId, setEditingHospitalId] = useState<number | null>(null)
+  const [isAddingHospital, setIsAddingHospital] = useState(false)
+  const [hospitalFormData, setHospitalFormData] = useState<Partial<Hospital>>({})
+  const [searchHospital, setSearchHospital] = useState('')
 
   // Rental state
   const [rentals, setRentals] = useState<RentalCar[]>(mockRentalCars)
@@ -38,6 +45,11 @@ export function AdminDashboard() {
   })
 
   const uniqueSpecialties = Array.from(new Set(doctors.map(d => d.specialty)))
+
+  // Hospital filters
+  const filteredHospitals = hospitals.filter(hospital =>
+    hospital.name.toLowerCase().includes(searchHospital.toLowerCase())
+  )
 
   // Rental filters
   const filteredRentals = rentals.filter(rental =>
@@ -104,7 +116,60 @@ export function AdminDashboard() {
     setDoctorFormData({})
   }
 
-  // Rental handlers
+  // Hospital handlers
+  const handleEditHospital = (hospital: Hospital) => {
+    setEditingHospitalId(hospital.id)
+    setHospitalFormData({ ...hospital })
+  }
+
+  const handleAddHospital = () => {
+    setIsAddingHospital(true)
+    setHospitalFormData({
+      name: '',
+      address: '',
+      phone: '',
+      email: '',
+      website: '',
+      hospital_class: 'B',
+      specialties: [],
+      rating: 4.5,
+      review_count: 0,
+      working_hours: '24 Jam',
+      has_emergency: true,
+      has_ambulance: true,
+      facilities: [],
+      images: [],
+      latitude: 0,
+      longitude: 0,
+    })
+  }
+
+  const handleSaveHospital = () => {
+    if (editingHospitalId) {
+      setHospitals(hospitals.map(h => h.id === editingHospitalId ? { ...h, ...hospitalFormData } : h))
+      setEditingHospitalId(null)
+    } else if (isAddingHospital) {
+      const newHospital: Hospital = {
+        id: Math.max(...hospitals.map(h => h.id), 0) + 1,
+        ...(hospitalFormData as Hospital)
+      }
+      setHospitals([...hospitals, newHospital])
+      setIsAddingHospital(false)
+    }
+    setHospitalFormData({})
+  }
+
+  const handleDeleteHospital = (id: number) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus rumah sakit ini?')) {
+      setHospitals(hospitals.filter(h => h.id !== id))
+    }
+  }
+
+  const handleCancelHospital = () => {
+    setEditingHospitalId(null)
+    setIsAddingHospital(false)
+    setHospitalFormData({})
+  }
   const handleEditRental = (rental: RentalCar) => {
     setEditingRentalId(rental.id)
     setRentalFormData({ ...rental })
@@ -241,7 +306,7 @@ export function AdminDashboard() {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            🏥 Rumah Sakit ({mockHospitals.length})
+            🏥 Rumah Sakit ({hospitals.length})
           </button>
           <button
             onClick={() => setActiveTab('rental')}
@@ -515,21 +580,75 @@ export function AdminDashboard() {
         <AnimatePresence>
           {activeTab === 'hospitals' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {!isAddingHospital && editingHospitalId === null && (
+                <motion.div className="mb-6">
+                  <Button onClick={handleAddHospital} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+                    <FiPlus size={20} /> Tambah Rumah Sakit Baru
+                  </Button>
+                </motion.div>
+              )}
+
+              {!isAddingHospital && editingHospitalId === null && (
+                <motion.div className="mb-6">
+                  <Input placeholder="Cari rumah sakit..." value={searchHospital} onChange={(e) => setSearchHospital(e.target.value)} />
+                </motion.div>
+              )}
+
+              {(isAddingHospital || editingHospitalId !== null) && (
+                <motion.div className="mb-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardHeader>
+                      <CardTitle>{isAddingHospital ? 'Tambah Rumah Sakit Baru' : 'Edit Rumah Sakit'}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Nama Rumah Sakit" value={hospitalFormData.name || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, name: e.target.value })} placeholder="RSUP Dr. Sardjito" />
+                        <Input label="Alamat" value={hospitalFormData.address || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, address: e.target.value })} placeholder="Jl. Kesehatan No.1, Sekip" />
+                        <Input label="No Telepon" value={hospitalFormData.phone || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, phone: e.target.value })} placeholder="(0274) 555555" />
+                        <Input label="Email" type="email" value={hospitalFormData.email || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, email: e.target.value })} placeholder="info@hospital.co.id" />
+                        <Input label="Website" value={hospitalFormData.website || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, website: e.target.value })} placeholder="www.hospital.co.id" />
+                        <Select label="Kelas RS" value={hospitalFormData.hospital_class || 'B'} onChange={(e) => setHospitalFormData({ ...hospitalFormData, hospital_class: e.target.value as any })}>
+                          <option value="A">Kelas A</option>
+                          <option value="B">Kelas B</option>
+                          <option value="C">Kelas C</option>
+                          <option value="D">Kelas D</option>
+                        </Select>
+                        <Input label="Rating" type="number" min="0" max="5" step="0.1" value={hospitalFormData.rating || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, rating: parseFloat(e.target.value) })} placeholder="4.8" />
+                        <Input label="Jumlah Review" type="number" value={hospitalFormData.review_count || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, review_count: parseInt(e.target.value) })} placeholder="2340" />
+                        <Input label="Jam Operasional" value={hospitalFormData.working_hours || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, working_hours: e.target.value })} placeholder="24 Jam" />
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button onClick={handleSaveHospital} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                          <FiSave size={18} /> Simpan
+                        </button>
+                        <button onClick={handleCancelHospital} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                          <FiX size={18} /> Batal
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
               <motion.div className="space-y-4">
-                {mockHospitals.map((hospital) => (
+                {filteredHospitals.map((hospital) => (
                   <Card key={hospital.id} className="hover:shadow-lg transition">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h3 className="text-xl font-bold text-gray-900">{hospital.name}</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 text-sm">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
                             <div><p className="text-gray-500">Kelas</p><p className="font-semibold"><Badge variant="info">{hospital.hospital_class}</Badge></p></div>
                             <div><p className="text-gray-500">Rating</p><p className="font-semibold text-yellow-600">⭐ {hospital.rating}</p></div>
                             <div><p className="text-gray-500">Spesialisasi</p><p className="font-semibold">{hospital.specialties.length}</p></div>
+                            <div><p className="text-gray-500">Telepon</p><p className="font-semibold text-blue-600">{hospital.phone}</p></div>
                           </div>
                           <p className="text-sm text-gray-600 mt-3">📍 {hospital.address}</p>
                         </div>
-                        <Badge variant="success">View Only</Badge>
+                        <div className="flex gap-2 ml-4">
+                          <button onClick={() => handleEditHospital(hospital)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteHospital(hospital.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
