@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX } from 'react-icons/fi'
+import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiSettings } from 'react-icons/fi'
 import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui'
-import { mockDoctors, mockHospitals, mockRentalCars, mockTherapies } from '@/data/mockData'
-import { Doctor, RentalCar, Therapy, Hospital } from '@/types'
+import { mockDoctors, mockHospitals, mockRentalCars, mockTherapies, mockHotels } from '@/data/mockData'
+import { Doctor, RentalCar, Therapy, Hospital, Hotel } from '@/types'
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'rental' | 'therapy'>('doctors')
+  const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'rental' | 'therapy' | 'hotels' | 'tours' | 'settings'>('doctors')
   
   // Doctors state
   const [doctors, setDoctors] = useState<Doctor[]>(mockDoctors)
@@ -37,7 +37,20 @@ export function AdminDashboard() {
   const [therapyFormData, setTherapyFormData] = useState<Partial<Therapy>>({})
   const [searchTherapy, setSearchTherapy] = useState('')
 
-  // Doctor filters
+  // Hotels state
+  const [hotels, setHotels] = useState<Hotel[]>(mockHotels)
+  const [editingHotelId, setEditingHotelId] = useState<number | null>(null)
+  const [isAddingHotel, setIsAddingHotel] = useState(false)
+  const [hotelFormData, setHotelFormData] = useState<Partial<Hotel>>({})
+  const [searchHotel, setSearchHotel] = useState('')
+
+  // Settings state
+  const [platformName, setPlatformName] = useState('Medical Tourism Jogja')
+  const [platformEmail, setPlatformEmail] = useState('support@medicaltourismjogja.com')
+  const [platformPhone, setPlatformPhone] = useState('+62 812-3456-7890')
+  const [platformAddress, setPlatformAddress] = useState('Yogyakarta, Indonesia')
+
+  // Filters & Search
   const filteredDoctors = doctors.filter(doc => {
     const matchesSearch = doc.full_name.toLowerCase().includes(searchDoctor.toLowerCase())
     const matchesSpecialty = filterSpecialty === 'all' || doc.specialty === filterSpecialty
@@ -46,19 +59,20 @@ export function AdminDashboard() {
 
   const uniqueSpecialties = Array.from(new Set(doctors.map(d => d.specialty)))
 
-  // Hospital filters
   const filteredHospitals = hospitals.filter(hospital =>
     hospital.name.toLowerCase().includes(searchHospital.toLowerCase())
   )
 
-  // Rental filters
   const filteredRentals = rentals.filter(rental =>
     rental.name.toLowerCase().includes(searchRental.toLowerCase())
   )
 
-  // Therapy filters
   const filteredTherapies = therapies.filter(therapy =>
     therapy.therapy_name.toLowerCase().includes(searchTherapy.toLowerCase())
+  )
+
+  const filteredHotels = hotels.filter(hotel =>
+    hotel.name.toLowerCase().includes(searchHotel.toLowerCase())
   )
 
   // Doctor handlers
@@ -170,6 +184,8 @@ export function AdminDashboard() {
     setIsAddingHospital(false)
     setHospitalFormData({})
   }
+
+  // Rental handlers
   const handleEditRental = (rental: RentalCar) => {
     setEditingRentalId(rental.id)
     setRentalFormData({ ...rental })
@@ -264,6 +280,58 @@ export function AdminDashboard() {
     setTherapyFormData({})
   }
 
+  // Hotel handlers
+  const handleEditHotel = (hotel: Hotel) => {
+    setEditingHotelId(hotel.id)
+    setHotelFormData({ ...hotel })
+  }
+
+  const handleAddHotel = () => {
+    setIsAddingHotel(true)
+    setHotelFormData({
+      name: '',
+      address: '',
+      phone: '',
+      email: '',
+      latitude: 0,
+      longitude: 0,
+      star_rating: 4,
+      amenities: [],
+      room_types: [],
+      price_per_night_min: 0,
+      price_per_night_max: 0,
+      distance_to_hospital: 0,
+      has_disability_access: false,
+    })
+  }
+
+  const handleSaveHotel = () => {
+    if (editingHotelId) {
+      setHotels(hotels.map(h => h.id === editingHotelId ? { ...h, ...hotelFormData } : h))
+      setEditingHotelId(null)
+    } else if (isAddingHotel) {
+      const newHotel: Hotel = {
+        id: Math.max(...hotels.map(h => h.id), 0) + 1,
+        ...(hotelFormData as Hotel)
+      }
+      setHotels([...hotels, newHotel])
+      setIsAddingHotel(false)
+    }
+    setHotelFormData({})
+  }
+
+  const handleDeleteHotel = (id: number) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus hotel ini?')) {
+      setHotels(hotels.filter(h => h.id !== id))
+    }
+  }
+
+  const handleCancelHotel = () => {
+    setEditingHotelId(null)
+    setIsAddingHotel(false)
+    setHotelFormData({})
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -276,9 +344,9 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-gray-900">🔧 Admin Dashboard</h1>
-              <p className="text-gray-600 mt-2">Kelola data dokter, rental, terapi dan rumah sakit</p>
+              <p className="text-gray-600 mt-2">Kelola semua data platform - Dokter, RS, Rental, Terapi, Hotel & Wisata</p>
             </div>
-            <Badge variant="info">Admin Mode</Badge>
+            <Badge variant="info">Full Admin Access</Badge>
           </div>
         </motion.div>
 
@@ -286,11 +354,11 @@ export function AdminDashboard() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto"
+          className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto pb-2"
         >
           <button
             onClick={() => setActiveTab('doctors')}
-            className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
               activeTab === 'doctors'
                 ? 'border-b-2 border-blue-600 text-blue-600'
                 : 'text-gray-600 hover:text-gray-900'
@@ -300,17 +368,17 @@ export function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('hospitals')}
-            className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
               activeTab === 'hospitals'
                 ? 'border-b-2 border-blue-600 text-blue-600'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            🏥 Rumah Sakit ({hospitals.length})
+            🏥 RS ({hospitals.length})
           </button>
           <button
             onClick={() => setActiveTab('rental')}
-            className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
               activeTab === 'rental'
                 ? 'border-b-2 border-blue-600 text-blue-600'
                 : 'text-gray-600 hover:text-gray-900'
@@ -320,7 +388,7 @@ export function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('therapy')}
-            className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
               activeTab === 'therapy'
                 ? 'border-b-2 border-blue-600 text-blue-600'
                 : 'text-gray-600 hover:text-gray-900'
@@ -328,61 +396,67 @@ export function AdminDashboard() {
           >
             💆 Terapi ({therapies.length})
           </button>
+          <button
+            onClick={() => setActiveTab('hotels')}
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
+              activeTab === 'hotels'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            🏨 Hotel ({hotels.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`pb-2 px-4 font-semibold transition whitespace-nowrap text-sm md:text-base ${
+              activeTab === 'settings'
+                ? 'border-b-2 border-blue-600 text-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            ⚙️ Pengaturan
+          </button>
         </motion.div>
 
         {/* Doctors Tab */}
         <AnimatePresence>
           {activeTab === 'doctors' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {!isAddingDoctor && editingDoctorId === null && (
                 <motion.div className="mb-6">
                   <Button onClick={handleAddDoctor} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-                    <FiPlus size={20} /> Tambah Dokter Baru
+                    <FiPlus size={20} /> Tambah Dokter
                   </Button>
                 </motion.div>
               )}
-
               {!isAddingDoctor && editingDoctorId === null && (
                 <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <Input
-                    placeholder="Cari dokter..."
-                    value={searchDoctor}
-                    onChange={(e) => setSearchDoctor(e.target.value)}
-                  />
+                  <Input placeholder="Cari dokter..." value={searchDoctor} onChange={(e) => setSearchDoctor(e.target.value)} />
                   <Select value={filterSpecialty} onChange={(e) => setFilterSpecialty(e.target.value)}>
                     <option value="all">Semua Spesialisasi</option>
-                    {uniqueSpecialties.map(spec => (
-                      <option key={spec} value={spec}>{spec}</option>
-                    ))}
+                    {uniqueSpecialties.map(spec => <option key={spec} value={spec}>{spec}</option>)}
                   </Select>
                 </motion.div>
               )}
-
               {(isAddingDoctor || editingDoctorId !== null) && (
                 <motion.div className="mb-8">
                   <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader>
-                      <CardTitle>{isAddingDoctor ? 'Tambah Dokter Baru' : 'Edit Dokter'}</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>{isAddingDoctor ? 'Tambah Dokter' : 'Edit Dokter'}</CardTitle></CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama Dokter" value={doctorFormData.full_name || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, full_name: e.target.value })} placeholder="dr. Nama Dokter" />
-                        <Input label="Spesialisasi" value={doctorFormData.specialty || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialty: e.target.value })} placeholder="Jantung, Bedah, dll" />
-                        <Input label="Alamat Praktik" value={doctorFormData.practice_address || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, practice_address: e.target.value })} placeholder="Jl. Alamat No. XX" />
-                        <Input label="No Telepon" value={doctorFormData.phone || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} placeholder="(0274) 123456" />
-                        <Input label="Email" type="email" value={doctorFormData.email || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} placeholder="doctor@email.com" />
-                        <Input label="Tarif Konsultasi (Rp)" type="number" value={doctorFormData.consultation_fee || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, consultation_fee: parseInt(e.target.value) })} placeholder="300000" />
-                        <Input label="Pengalaman (tahun)" type="number" value={doctorFormData.years_experience || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, years_experience: parseInt(e.target.value) })} placeholder="15" />
+                        <Input label="Nama" value={doctorFormData.full_name || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, full_name: e.target.value })} />
+                        <Input label="Spesialisasi" value={doctorFormData.specialty || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, specialty: e.target.value })} />
+                        <Input label="Alamat" value={doctorFormData.practice_address || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, practice_address: e.target.value })} />
+                        <Input label="Telepon" value={doctorFormData.phone || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} />
+                        <Input label="Email" value={doctorFormData.email || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} />
+                        <Input label="Tarif Konsultasi" type="number" value={doctorFormData.consultation_fee || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, consultation_fee: parseInt(e.target.value) })} />
+                        <Input label="Pengalaman (tahun)" type="number" value={doctorFormData.years_experience || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, years_experience: parseInt(e.target.value) })} />
                       </div>
                       <div className="flex gap-3 mt-6">
-                        <button onClick={handleSaveDoctor} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                        <button onClick={handleSaveDoctor} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
                           <FiSave size={18} /> Simpan
                         </button>
-                        <button onClick={handleCancelDoctor} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                        <button onClick={handleCancelDoctor} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
                           <FiX size={18} /> Batal
                         </button>
                       </div>
@@ -390,182 +464,23 @@ export function AdminDashboard() {
                   </Card>
                 </motion.div>
               )}
-
               <motion.div className="space-y-4">
                 {filteredDoctors.map((doctor) => (
-                  <Card key={doctor.id} className="hover:shadow-lg transition">
+                  <Card key={doctor.id} className="hover:shadow-lg">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900">{doctor.full_name}</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
+                          <h3 className="text-lg font-bold">{doctor.full_name}</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
                             <div><p className="text-gray-500">Spesialisasi</p><p className="font-semibold">{doctor.specialty}</p></div>
                             <div><p className="text-gray-500">Pengalaman</p><p className="font-semibold">{doctor.years_experience} tahun</p></div>
-                            <div><p className="text-gray-500">Tarif</p><p className="font-semibold">Rp {doctor.consultation_fee.toLocaleString('id-ID')}</p></div>
-                            <div><p className="text-gray-500">Telepon</p><p className="font-semibold text-blue-600">{doctor.phone}</p></div>
+                            <div><p className="text-gray-500">Tarif</p><p className="font-semibold">Rp {doctor.consultation_fee.toLocaleString()}</p></div>
+                            <div><p className="text-gray-500">Rating</p><p className="font-semibold">⭐ {doctor.rating}</p></div>
                           </div>
                         </div>
-                        <div className="flex gap-2 ml-4">
-                          <button onClick={() => handleEditDoctor(doctor)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"><FiEdit2 size={18} /></button>
-                          <button onClick={() => handleDeleteDoctor(doctor.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"><FiTrash2 size={18} /></button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Rental Tab */}
-        <AnimatePresence>
-          {activeTab === 'rental' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {!isAddingRental && editingRentalId === null && (
-                <motion.div className="mb-6">
-                  <Button onClick={handleAddRental} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-                    <FiPlus size={20} /> Tambah Rental Baru
-                  </Button>
-                </motion.div>
-              )}
-
-              {!isAddingRental && editingRentalId === null && (
-                <motion.div className="mb-6">
-                  <Input placeholder="Cari rental..." value={searchRental} onChange={(e) => setSearchRental(e.target.value)} />
-                </motion.div>
-              )}
-
-              {(isAddingRental || editingRentalId !== null) && (
-                <motion.div className="mb-8">
-                  <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader>
-                      <CardTitle>{isAddingRental ? 'Tambah Rental Baru' : 'Edit Rental'}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama Kendaraan" value={rentalFormData.name || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, name: e.target.value })} placeholder="Toyota Avanza" />
-                        <Select label="Tipe Kendaraan" value={rentalFormData.type || 'MPV'} onChange={(e) => setRentalFormData({ ...rentalFormData, type: e.target.value as any })}>
-                          <option value="MPV">MPV</option>
-                          <option value="SUV">SUV</option>
-                          <option value="Minibus">Minibus</option>
-                          <option value="Wheelchair Access">Wheelchair Access</option>
-                          <option value="Luxury">Luxury</option>
-                        </Select>
-                        <Input label="Kapasitas Penumpang" type="number" value={rentalFormData.passenger_capacity || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, passenger_capacity: parseInt(e.target.value) })} placeholder="7" />
-                        <Input label="Harga/Hari (Rp)" type="number" value={rentalFormData.price_per_day || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, price_per_day: parseInt(e.target.value) })} placeholder="350000" />
-                        <Input label="Harga/Jam (Rp)" type="number" value={rentalFormData.price_per_hour || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, price_per_hour: parseInt(e.target.value) })} placeholder="50000" />
-                        <Input label="Nama Driver" value={rentalFormData.driver_name || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, driver_name: e.target.value })} placeholder="Nama Driver" />
-                        <Input label="No Telepon Driver" value={rentalFormData.driver_phone || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, driver_phone: e.target.value })} placeholder="081234567890" />
-                      </div>
-                      <div className="flex gap-3 mt-6">
-                        <button onClick={handleSaveRental} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                          <FiSave size={18} /> Simpan
-                        </button>
-                        <button onClick={handleCancelRental} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
-                          <FiX size={18} /> Batal
-                        </button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
-              <motion.div className="space-y-4">
-                {filteredRentals.map((rental) => (
-                  <Card key={rental.id} className="hover:shadow-lg transition">
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900">{rental.name}</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
-                            <div><p className="text-gray-500">Tipe</p><p className="font-semibold">{rental.type}</p></div>
-                            <div><p className="text-gray-500">Kapasitas</p><p className="font-semibold">{rental.passenger_capacity} orang</p></div>
-                            <div><p className="text-gray-500">Harga/Hari</p><p className="font-semibold">Rp {rental.price_per_day.toLocaleString('id-ID')}</p></div>
-                            <div><p className="text-gray-500">Driver</p><p className="font-semibold text-blue-600">{rental.driver_phone}</p></div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 ml-4">
-                          <button onClick={() => handleEditRental(rental)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"><FiEdit2 size={18} /></button>
-                          <button onClick={() => handleDeleteRental(rental.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"><FiTrash2 size={18} /></button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Therapy Tab */}
-        <AnimatePresence>
-          {activeTab === 'therapy' && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {!isAddingTherapy && editingTherapyId === null && (
-                <motion.div className="mb-6">
-                  <Button onClick={handleAddTherapy} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-                    <FiPlus size={20} /> Tambah Terapi Baru
-                  </Button>
-                </motion.div>
-              )}
-
-              {!isAddingTherapy && editingTherapyId === null && (
-                <motion.div className="mb-6">
-                  <Input placeholder="Cari terapi..." value={searchTherapy} onChange={(e) => setSearchTherapy(e.target.value)} />
-                </motion.div>
-              )}
-
-              {(isAddingTherapy || editingTherapyId !== null) && (
-                <motion.div className="mb-8">
-                  <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader>
-                      <CardTitle>{isAddingTherapy ? 'Tambah Terapi Baru' : 'Edit Terapi'}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama Terapi" value={therapyFormData.therapy_name || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, therapy_name: e.target.value })} placeholder="Fisioterapi Post Operasi" />
-                        <Select label="Jenis Terapi" value={therapyFormData.therapy_type || 'fisioterapi'} onChange={(e) => setTherapyFormData({ ...therapyFormData, therapy_type: e.target.value as any })}>
-                          <option value="fisioterapi">Fisioterapi</option>
-                          <option value="okupasi">Okupasi Terapi</option>
-                          <option value="wicara">Terapi Wicara</option>
-                          <option value="akupunktur">Akupunktur Medis</option>
-                          <option value="rehab">Rehabilitasi</option>
-                        </Select>
-                        <Input label="Deskripsi" value={therapyFormData.description || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, description: e.target.value })} placeholder="Deskripsi terapi" />
-                        <Input label="Harga/Sesi (Rp)" type="number" value={therapyFormData.price_per_session || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, price_per_session: parseInt(e.target.value) })} placeholder="150000" />
-                        <Input label="Durasi (menit)" type="number" value={therapyFormData.duration_minutes || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, duration_minutes: parseInt(e.target.value) })} placeholder="45" />
-                      </div>
-                      <div className="flex gap-3 mt-6">
-                        <button onClick={handleSaveTherapy} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                          <FiSave size={18} /> Simpan
-                        </button>
-                        <button onClick={handleCancelTherapy} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
-                          <FiX size={18} /> Batal
-                        </button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
-              <motion.div className="space-y-4">
-                {filteredTherapies.map((therapy) => (
-                  <Card key={therapy.id} className="hover:shadow-lg transition">
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900">{therapy.therapy_name}</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
-                            <div><p className="text-gray-500">Jenis</p><p className="font-semibold capitalize">{therapy.therapy_type}</p></div>
-                            <div><p className="text-gray-500">Durasi</p><p className="font-semibold">{therapy.duration_minutes} menit</p></div>
-                            <div><p className="text-gray-500">Harga/Sesi</p><p className="font-semibold">Rp {therapy.price_per_session.toLocaleString('id-ID')}</p></div>
-                            <div><p className="text-gray-500">Deskripsi</p><p className="font-semibold text-blue-600 truncate">{therapy.description}</p></div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 ml-4">
-                          <button onClick={() => handleEditTherapy(therapy)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"><FiEdit2 size={18} /></button>
-                          <button onClick={() => handleDeleteTherapy(therapy.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditDoctor(doctor)} className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteDoctor(doctor.id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"><FiTrash2 size={18} /></button>
                         </div>
                       </div>
                     </CardContent>
@@ -583,45 +498,37 @@ export function AdminDashboard() {
               {!isAddingHospital && editingHospitalId === null && (
                 <motion.div className="mb-6">
                   <Button onClick={handleAddHospital} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-                    <FiPlus size={20} /> Tambah Rumah Sakit Baru
+                    <FiPlus size={20} /> Tambah Rumah Sakit
                   </Button>
                 </motion.div>
               )}
-
               {!isAddingHospital && editingHospitalId === null && (
                 <motion.div className="mb-6">
                   <Input placeholder="Cari rumah sakit..." value={searchHospital} onChange={(e) => setSearchHospital(e.target.value)} />
                 </motion.div>
               )}
-
               {(isAddingHospital || editingHospitalId !== null) && (
                 <motion.div className="mb-8">
                   <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader>
-                      <CardTitle>{isAddingHospital ? 'Tambah Rumah Sakit Baru' : 'Edit Rumah Sakit'}</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle>{isAddingHospital ? 'Tambah Rumah Sakit' : 'Edit Rumah Sakit'}</CardTitle></CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Nama Rumah Sakit" value={hospitalFormData.name || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, name: e.target.value })} placeholder="RSUP Dr. Sardjito" />
-                        <Input label="Alamat" value={hospitalFormData.address || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, address: e.target.value })} placeholder="Jl. Kesehatan No.1, Sekip" />
-                        <Input label="No Telepon" value={hospitalFormData.phone || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, phone: e.target.value })} placeholder="(0274) 555555" />
-                        <Input label="Email" type="email" value={hospitalFormData.email || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, email: e.target.value })} placeholder="info@hospital.co.id" />
-                        <Input label="Website" value={hospitalFormData.website || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, website: e.target.value })} placeholder="www.hospital.co.id" />
+                        <Input label="Nama RS" value={hospitalFormData.name || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, name: e.target.value })} />
+                        <Input label="Alamat" value={hospitalFormData.address || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, address: e.target.value })} />
+                        <Input label="Telepon" value={hospitalFormData.phone || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, phone: e.target.value })} />
+                        <Input label="Email" value={hospitalFormData.email || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, email: e.target.value })} />
+                        <Input label="Website" value={hospitalFormData.website || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, website: e.target.value })} />
                         <Select label="Kelas RS" value={hospitalFormData.hospital_class || 'B'} onChange={(e) => setHospitalFormData({ ...hospitalFormData, hospital_class: e.target.value as any })}>
-                          <option value="A">Kelas A</option>
-                          <option value="B">Kelas B</option>
-                          <option value="C">Kelas C</option>
-                          <option value="D">Kelas D</option>
+                          <option value="A">Kelas A</option><option value="B">Kelas B</option><option value="C">Kelas C</option><option value="D">Kelas D</option>
                         </Select>
-                        <Input label="Rating" type="number" min="0" max="5" step="0.1" value={hospitalFormData.rating || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, rating: parseFloat(e.target.value) })} placeholder="4.8" />
-                        <Input label="Jumlah Review" type="number" value={hospitalFormData.review_count || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, review_count: parseInt(e.target.value) })} placeholder="2340" />
-                        <Input label="Jam Operasional" value={hospitalFormData.working_hours || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, working_hours: e.target.value })} placeholder="24 Jam" />
+                        <Input label="Rating" type="number" value={hospitalFormData.rating || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, rating: parseFloat(e.target.value) })} />
+                        <Input label="Review" type="number" value={hospitalFormData.review_count || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, review_count: parseInt(e.target.value) })} />
                       </div>
                       <div className="flex gap-3 mt-6">
-                        <button onClick={handleSaveHospital} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                        <button onClick={handleSaveHospital} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
                           <FiSave size={18} /> Simpan
                         </button>
-                        <button onClick={handleCancelHospital} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                        <button onClick={handleCancelHospital} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
                           <FiX size={18} /> Batal
                         </button>
                       </div>
@@ -629,25 +536,23 @@ export function AdminDashboard() {
                   </Card>
                 </motion.div>
               )}
-
               <motion.div className="space-y-4">
                 {filteredHospitals.map((hospital) => (
-                  <Card key={hospital.id} className="hover:shadow-lg transition">
+                  <Card key={hospital.id} className="hover:shadow-lg">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900">{hospital.name}</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
+                          <h3 className="text-lg font-bold">{hospital.name}</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
                             <div><p className="text-gray-500">Kelas</p><p className="font-semibold"><Badge variant="info">{hospital.hospital_class}</Badge></p></div>
-                            <div><p className="text-gray-500">Rating</p><p className="font-semibold text-yellow-600">⭐ {hospital.rating}</p></div>
+                            <div><p className="text-gray-500">Rating</p><p className="font-semibold">⭐ {hospital.rating}</p></div>
                             <div><p className="text-gray-500">Spesialisasi</p><p className="font-semibold">{hospital.specialties.length}</p></div>
-                            <div><p className="text-gray-500">Telepon</p><p className="font-semibold text-blue-600">{hospital.phone}</p></div>
+                            <div><p className="text-gray-500">Telepon</p><p className="font-semibold">{hospital.phone}</p></div>
                           </div>
-                          <p className="text-sm text-gray-600 mt-3">📍 {hospital.address}</p>
                         </div>
-                        <div className="flex gap-2 ml-4">
-                          <button onClick={() => handleEditHospital(hospital)} className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"><FiEdit2 size={18} /></button>
-                          <button onClick={() => handleDeleteHospital(hospital.id)} className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditHospital(hospital)} className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteHospital(hospital.id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"><FiTrash2 size={18} /></button>
                         </div>
                       </div>
                     </CardContent>
@@ -657,7 +562,3 @@ export function AdminDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </div>
-  )
-}
