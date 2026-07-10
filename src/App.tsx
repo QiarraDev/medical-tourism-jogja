@@ -13,6 +13,7 @@ import { AssessmentPage } from '@/pages/AssessmentPage'
 import { AssessmentResultsPage } from '@/pages/AssessmentResultsPage'
 import { CompanionAssessmentPage } from '@/pages/CompanionAssessmentPage'
 import { CompanionResultsPage } from '@/pages/CompanionResultsPage'
+import { ComponentsShowcase } from '@/pages/ComponentsShowcase'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/assessment/:id/results" element={<AssessmentResultsPage />} />
             <Route path="/companion/assessment" element={<CompanionAssessmentPage />} />
             <Route path="/companion/assessment/:id/results" element={<CompanionResultsPage />} />
+            <Route path="/components" element={<ComponentsShowcase />} />
           </Routes>
         </main>
         <Footer />
