@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Menu, X, LogOut, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 export const Navbar = () => {
@@ -14,79 +13,100 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container flex justify-between items-center h-16">
-        <Link to="/" className="text-2xl font-bold text-primary">
-          🏥 Medical Tourism
+    <nav className="bg-blue-600 text-white shadow-lg">
+      {/* Demo Mode Badge */}
+      <div className="bg-yellow-500 text-black text-center py-2 text-sm font-bold">
+        🎬 DEMO MODE - All features working with mock data (No backend needed)
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <Link to="/" className="text-2xl font-bold">
+          🏥 Med Tourism
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex gap-8 items-center">
-          <Link to="/" className="text-dark hover:text-primary">
+          <Link to="/" className="hover:text-blue-200">
             Home
           </Link>
-          <Link to="/hospitals" className="text-dark hover:text-primary">
-            Rumah Sakit
+          <Link to="/hospitals" className="hover:text-blue-200">
+            RS
           </Link>
-          <Link to="/doctors" className="text-dark hover:text-primary">
+          <Link to="/doctors" className="hover:text-blue-200">
             Dokter
           </Link>
-          <Link to="/hotels" className="text-dark hover:text-primary">
+          <Link to="/hotels" className="hover:text-blue-200">
             Hotel
+          </Link>
+          <Link to="/transportation" className="hover:text-blue-200">
+            Transport
+          </Link>
+          <Link to="/tours" className="hover:text-blue-200">
+            Wisata
+          </Link>
+          <Link to="/assessment" className="hover:text-blue-200">
+            Assessment
           </Link>
 
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-dark">{user.full_name}</span>
+              <span>{user.full_name}</span>
               <button
                 onClick={handleLogout}
-                className="btn-primary flex items-center gap-2"
+                className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
               >
-                <LogOut size={18} />
                 Logout
               </button>
             </div>
           ) : (
-            <Link to="/auth/login" className="btn-primary">
+            <Link to="/auth/login" className="bg-yellow-500 px-4 py-2 rounded text-black hover:bg-yellow-600">
               Login
             </Link>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden text-white text-2xl"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? '✕' : '☰'}
+      </button>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-light p-4 space-y-4">
-          <Link to="/" className="block text-dark hover:text-primary">
+        <div className="md:hidden bg-blue-700 p-4 space-y-4">
+          <Link to="/" className="block text-white hover:text-blue-200">
             Home
           </Link>
-          <Link to="/hospitals" className="block text-dark hover:text-primary">
-            Rumah Sakit
+          <Link to="/hospitals" className="block text-white hover:text-blue-200">
+            RS
           </Link>
-          <Link to="/doctors" className="block text-dark hover:text-primary">
+          <Link to="/doctors" className="block text-white hover:text-blue-200">
             Dokter
           </Link>
-          <Link to="/hotels" className="block text-dark hover:text-primary">
+          <Link to="/hotels" className="block text-white hover:text-blue-200">
             Hotel
+          </Link>
+          <Link to="/transportation" className="block text-white hover:text-blue-200">
+            Transport
+          </Link>
+          <Link to="/tours" className="block text-white hover:text-blue-200">
+            Wisata
+          </Link>
+          <Link to="/assessment" className="block text-white hover:text-blue-200">
+            Assessment
           </Link>
           {user ? (
             <button
               onClick={handleLogout}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              className="w-full bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600"
             >
-              <LogOut size={18} />
               Logout
             </button>
           ) : (
-            <Link to="/auth/login" className="btn-primary block text-center">
+            <Link to="/auth/login" className="block bg-yellow-500 px-4 py-2 rounded text-black text-center hover:bg-yellow-600">
               Login
             </Link>
           )}

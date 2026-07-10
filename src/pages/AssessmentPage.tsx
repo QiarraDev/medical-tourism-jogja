@@ -10,34 +10,35 @@ export const AssessmentPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState<AssessmentForm>({
-    patientName: '',
-    dateOfBirth: '',
-    gender: 'M',
+    patientName: 'Ibu Sarah', // Demo data filled
+    dateOfBirth: '1980-05-15',
+    gender: 'F',
     bloodType: 'A',
-    chiefComplaint: '',
-    symptoms: '',
+    chiefComplaint: 'Nyeri dada & sesak napas',
+    symptoms: 'Mengalami nyeri dada saat beraktivitas, sesak napas ringan, dan kelelahan yang berlebihan. Gejala sudah dirasakan selama 2 minggu terakhir.',
     severity: 'moderate',
-    allergies: '',
+    allergies: 'Amoksisilin, Aspirin',
     preferredLocation: 'Sekip',
     budgetMin: 5000000,
     budgetMax: 25000000,
     numCompanions: 1,
-    emergencyContact: '',
-    emergencyPhone: '',
+    emergencyContact: 'Pak Robert (suami)',
+    emergencyPhone: '+62 812-3456-7890',
   })
 
-  if (!user) {
-    return (
-      <div className="container py-12 text-center">
-        <p className="text-lg text-gray-600 mb-4">
-          Anda harus login untuk melakukan assessment
-        </p>
-        <button onClick={() => navigate('/auth/login')} className="btn-primary">
-          Login
-        </button>
-      </div>
-    )
-  }
+  // Demo mode: allow assessment without login
+  // if (!user) {
+  //   return (
+  //     <div className="container py-12 text-center">
+  //       <p className="text-lg text-gray-600 mb-4">
+  //         Anda harus login untuk melakukan assessment
+  //       </p>
+  //       <button onClick={() => navigate('/auth/login')} className="btn-primary">
+  //         Login
+  //       </button>
+  //     </div>
+  //   )
+  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -53,11 +54,16 @@ export const AssessmentPage = () => {
     setLoading(true)
 
     try {
-      const response = await assessmentService.createAssessment(formData)
-      navigate(`/assessment/${response.id}/results`)
+      // Demo mode: create a random assessment ID
+      const mockAssessmentId = Math.floor(Math.random() * 10000) + 1000
+      
+      // Simulate API delay for realistic feel
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Navigate to results page (demo mode always works)
+      navigate(`/assessment/${mockAssessmentId}/results`)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal membuat assessment')
-    } finally {
+      setError('Gagal membuat assessment')
       setLoading(false)
     }
   }
@@ -65,25 +71,28 @@ export const AssessmentPage = () => {
   return (
     <div>
       {/* Header */}
-      <section className="bg-primary text-white py-12">
-        <div className="container">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-yellow-500 text-black px-4 py-2 rounded inline-block mb-4 text-sm font-bold">
+            🎬 DEMO MODE - Form sudah terisi dengan data contoh
+          </div>
           <h1 className="text-4xl font-bold mb-4">Assessment Kesehatan</h1>
           <p className="text-blue-100">
-            Isi formulir untuk mendapatkan rekomendasi rumah sakit dan dokter terbaik
+            Isi formulir untuk mendapatkan rekomendasi rumah sakit dan dokter terbaik. Form ini sudah terisi dengan data contoh untuk demo.
           </p>
         </div>
       </section>
 
       {/* Form */}
-      <section className="section">
-        <div className="container max-w-2xl">
+      <section className="py-16 px-4">
+        <div className="max-w-2xl mx-auto">
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="card">
+          <form onSubmit={handleSubmit} className="bg-white rounded shadow-lg p-8">
             {/* Section 1: Data Pasien */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 pb-2 border-b-2 border-primary">
@@ -98,7 +107,7 @@ export const AssessmentPage = () => {
                     name="patientName"
                     value={formData.patientName}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -110,7 +119,7 @@ export const AssessmentPage = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -121,7 +130,7 @@ export const AssessmentPage = () => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   >
                     <option value="M">Laki-laki</option>
                     <option value="F">Perempuan</option>
@@ -134,7 +143,7 @@ export const AssessmentPage = () => {
                     name="bloodType"
                     value={formData.bloodType}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   >
                     <option value="A">A</option>
                     <option value="B">B</option>
@@ -159,7 +168,7 @@ export const AssessmentPage = () => {
                     name="chiefComplaint"
                     value={formData.chiefComplaint}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="Contoh: Sakit dada"
                     required
                   />
@@ -171,7 +180,7 @@ export const AssessmentPage = () => {
                     name="symptoms"
                     value={formData.symptoms}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     rows={4}
                     placeholder="Jelaskan gejala yang Anda alami..."
                     required
@@ -184,7 +193,7 @@ export const AssessmentPage = () => {
                     name="severity"
                     value={formData.severity}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   >
                     <option value="mild">Ringan</option>
                     <option value="moderate">Sedang</option>
@@ -199,7 +208,7 @@ export const AssessmentPage = () => {
                     name="allergies"
                     value={formData.allergies}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="Contoh: Amoksisilin, Aspirin"
                   />
                 </div>
@@ -220,7 +229,7 @@ export const AssessmentPage = () => {
                     name="preferredLocation"
                     value={formData.preferredLocation}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     placeholder="Sekip, Yogyakarta"
                   />
                 </div>
@@ -232,7 +241,7 @@ export const AssessmentPage = () => {
                     name="numCompanions"
                     value={formData.numCompanions}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     min="0"
                   />
                 </div>
@@ -244,7 +253,7 @@ export const AssessmentPage = () => {
                     name="budgetMin"
                     value={formData.budgetMin}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -255,7 +264,7 @@ export const AssessmentPage = () => {
                     name="budgetMax"
                     value={formData.budgetMax}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -263,7 +272,7 @@ export const AssessmentPage = () => {
 
             {/* Section 4: Kontak Darurat */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4 pb-2 border-b-2 border-primary">
+              <h2 className="text-2xl font-bold mb-4 pb-2 border-b-2 border-blue-600">
                 4. Kontak Darurat
               </h2>
 
@@ -275,7 +284,7 @@ export const AssessmentPage = () => {
                     name="emergencyContact"
                     value={formData.emergencyContact}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -287,7 +296,7 @@ export const AssessmentPage = () => {
                     name="emergencyPhone"
                     value={formData.emergencyPhone}
                     onChange={handleChange}
-                    className="input"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     required
                   />
                 </div>
@@ -298,9 +307,9 @@ export const AssessmentPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50"
             >
-              {loading ? 'Sedang memproses...' : 'Kirim Assessment'}
+              {loading ? '⏳ Sedang memproses...' : '✅ Kirim Assessment'}
             </button>
           </form>
         </div>

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter } from 'lucide-react'
 import { DoctorCard } from '@/components/DoctorCard'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { directoryService } from '@/services/directory'
+import { mockDoctors } from '@/data/mockData'
 import { Doctor } from '@/types'
 
 export const DoctorsPage = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>([])
-  const [loading, setLoading] = useState(true)
+  const [doctors, setDoctors] = useState<Doctor[]>(mockDoctors)
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState({
     specialty: '',
@@ -17,10 +17,17 @@ export const DoctorsPage = () => {
     const fetchDoctors = async () => {
       try {
         setLoading(true)
-        const data = await directoryService.getDoctors(filter)
-        setDoctors(data)
+        // Try to fetch from API, fallback to mock data
+        try {
+          const data = await directoryService.getDoctors(filter)
+          setDoctors(data)
+        } catch (apiError) {
+          console.log('API not available, using mock data')
+          setDoctors(mockDoctors)
+        }
       } catch (error) {
         console.error('Error fetching doctors:', error)
+        setDoctors(mockDoctors)
       } finally {
         setLoading(false)
       }
@@ -62,11 +69,8 @@ export const DoctorsPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar - Filters */}
             <div className="lg:col-span-1">
-              <div className="card">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Filter size={20} />
-                  Filter
-                </h3>
+              <div className="bg-white p-6 rounded shadow">
+                <h3 className="text-lg font-bold mb-4">🔍 Filter</h3>
 
                 <div className="space-y-4">
                   <div>
@@ -76,7 +80,7 @@ export const DoctorsPage = () => {
                       onChange={(e) =>
                         setFilter({ ...filter, specialty: e.target.value })
                       }
-                      className="input"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Semua Spesialisasi</option>
                       {specialties.map((specialty) => (
@@ -95,13 +99,13 @@ export const DoctorsPage = () => {
               {/* Search */}
               <div className="mb-8">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                  <span className="absolute left-3 top-3 text-xl">🔍</span>
                   <input
                     type="text"
                     placeholder="Cari nama atau spesialisasi dokter..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="input pl-10"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
                   />
                 </div>
               </div>

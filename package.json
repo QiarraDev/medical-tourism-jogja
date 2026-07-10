@@ -2,6 +2,7 @@
   "name": "medical-tourism-jogja",
   "version": "1.0.0",
   "description": "Medical Tourism Jogja - MVP Platform",
+  "type": "module",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
+    "@types/node": "^20.0.0",
     "typescript": "^5.1.6",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
@@ -32,3 +34,4 @@
     "lint": "eslint . --ext .ts,.tsx"
   }
 }
+
