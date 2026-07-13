@@ -24,3 +24,5 @@ export {
   DialogTitle,
   DialogDescription,
 } from "./Modal"
+
+export { ImageUpload } from "./ImageUpload"

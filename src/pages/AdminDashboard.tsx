@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiSettings } from 'react-icons/fi'
-import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui'
+import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge, ImageUpload } from '@/components/ui'
 import { mockDoctors, mockHospitals, mockRentalCars, mockTherapies, mockHotels } from '@/data/mockData'
 import { Doctor, RentalCar, Therapy, Hospital, Hotel } from '@/types'
 
@@ -49,6 +49,9 @@ export function AdminDashboard() {
   const [platformEmail, setPlatformEmail] = useState('support@medicaltourismjogja.com')
   const [platformPhone, setPlatformPhone] = useState('+62 812-3456-7890')
   const [platformAddress, setPlatformAddress] = useState('Yogyakarta, Indonesia')
+  const [platformIcon, setPlatformIcon] = useState('🏥')
+  const [platformDescription, setPlatformDescription] = useState('Medical Tourism Jogja adalah platform komprehensif yang menjembatani layanan kesehatan dengan pengalaman wisata di Yogyakarta. Kami bekerja sama dengan rumah sakit terbaik untuk memberikan perawatan optimal, sembari memfasilitasi kebutuhan akomodasi dan pariwisata Anda agar proses penyembuhan terasa nyaman.')
+  const [isEditingSettings, setIsEditingSettings] = useState(false)
 
   // Filters & Search
   const filteredDoctors = doctors.filter(doc => {
@@ -449,8 +452,10 @@ export function AdminDashboard() {
                         <Input label="Alamat" value={doctorFormData.practice_address || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, practice_address: e.target.value })} />
                         <Input label="Telepon" value={doctorFormData.phone || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, phone: e.target.value })} />
                         <Input label="Email" value={doctorFormData.email || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, email: e.target.value })} />
+                        <ImageUpload label="Icon/Foto" value={doctorFormData.icon_url} onChange={(val) => setDoctorFormData({ ...doctorFormData, icon_url: val })} />
                         <Input label="Tarif Konsultasi" type="number" value={doctorFormData.consultation_fee || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, consultation_fee: parseInt(e.target.value) })} />
                         <Input label="Pengalaman (tahun)" type="number" value={doctorFormData.years_experience || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, years_experience: parseInt(e.target.value) })} />
+                        <Input label="Link Google Maps" value={doctorFormData.maps_url || ''} onChange={(e) => setDoctorFormData({ ...doctorFormData, maps_url: e.target.value })} />
                       </div>
                       <div className="flex gap-3 mt-6">
                         <button onClick={handleSaveDoctor} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
@@ -470,7 +475,10 @@ export function AdminDashboard() {
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold">{doctor.full_name}</h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold">{doctor.full_name}</h3>
+                            {doctor.maps_url && <a href={doctor.maps_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">📍 Maps</a>}
+                          </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
                             <div><p className="text-gray-500">Spesialisasi</p><p className="font-semibold">{doctor.specialty}</p></div>
                             <div><p className="text-gray-500">Pengalaman</p><p className="font-semibold">{doctor.years_experience} tahun</p></div>
@@ -518,11 +526,13 @@ export function AdminDashboard() {
                         <Input label="Telepon" value={hospitalFormData.phone || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, phone: e.target.value })} />
                         <Input label="Email" value={hospitalFormData.email || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, email: e.target.value })} />
                         <Input label="Website" value={hospitalFormData.website || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, website: e.target.value })} />
+                        <ImageUpload label="Icon/Foto" value={hospitalFormData.icon_url} onChange={(val) => setHospitalFormData({ ...hospitalFormData, icon_url: val })} />
                         <Select label="Kelas RS" value={hospitalFormData.hospital_class || 'B'} onChange={(e) => setHospitalFormData({ ...hospitalFormData, hospital_class: e.target.value as any })}>
                           <option value="A">Kelas A</option><option value="B">Kelas B</option><option value="C">Kelas C</option><option value="D">Kelas D</option>
                         </Select>
                         <Input label="Rating" type="number" value={hospitalFormData.rating || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, rating: parseFloat(e.target.value) })} />
                         <Input label="Review" type="number" value={hospitalFormData.review_count || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, review_count: parseInt(e.target.value) })} />
+                        <Input label="Link Google Maps" value={hospitalFormData.maps_url || ''} onChange={(e) => setHospitalFormData({ ...hospitalFormData, maps_url: e.target.value })} />
                       </div>
                       <div className="flex gap-3 mt-6">
                         <button onClick={handleSaveHospital} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
@@ -542,7 +552,10 @@ export function AdminDashboard() {
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold">{hospital.name}</h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold">{hospital.name}</h3>
+                            {hospital.maps_url && <a href={hospital.maps_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">📍 Maps</a>}
+                          </div>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
                             <div><p className="text-gray-500">Kelas</p><p className="font-semibold"><Badge variant="info">{hospital.hospital_class}</Badge></p></div>
                             <div><p className="text-gray-500">Rating</p><p className="font-semibold">⭐ {hospital.rating}</p></div>
@@ -562,3 +575,310 @@ export function AdminDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Rentals Tab */}
+        <AnimatePresence>
+          {activeTab === 'rental' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {!isAddingRental && editingRentalId === null && (
+                <motion.div className="mb-6">
+                  <Button onClick={handleAddRental} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+                    <FiPlus size={20} /> Tambah Rental
+                  </Button>
+                </motion.div>
+              )}
+              {!isAddingRental && editingRentalId === null && (
+                <motion.div className="mb-6">
+                  <Input placeholder="Cari rental..." value={searchRental} onChange={(e) => setSearchRental(e.target.value)} />
+                </motion.div>
+              )}
+              {(isAddingRental || editingRentalId !== null) && (
+                <motion.div className="mb-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardHeader><CardTitle>{isAddingRental ? 'Tambah Rental' : 'Edit Rental'}</CardTitle></CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Nama Rental/Mobil" value={rentalFormData.name || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, name: e.target.value })} />
+                        <Input label="Tipe" value={rentalFormData.type || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, type: e.target.value as any })} />
+                        <Input label="Kapasitas" type="number" value={rentalFormData.passenger_capacity || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, passenger_capacity: parseInt(e.target.value) })} />
+                        <Input label="Harga/Hari" type="number" value={rentalFormData.price_per_day || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, price_per_day: parseInt(e.target.value) })} />
+                        <Input label="Nama Supir" value={rentalFormData.driver_name || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, driver_name: e.target.value })} />
+                        <Input label="Telepon Supir" value={rentalFormData.driver_phone || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, driver_phone: e.target.value })} />
+                        <Input label="Link Google Maps Lokasi Rental" value={rentalFormData.maps_url || ''} onChange={(e) => setRentalFormData({ ...rentalFormData, maps_url: e.target.value })} />
+                        <ImageUpload label="Icon/Foto" value={rentalFormData.icon_url} onChange={(val) => setRentalFormData({ ...rentalFormData, icon_url: val })} />
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button onClick={handleSaveRental} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                          <FiSave size={18} /> Simpan
+                        </button>
+                        <button onClick={handleCancelRental} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                          <FiX size={18} /> Batal
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+              <motion.div className="space-y-4">
+                {filteredRentals.map((rental) => (
+                  <Card key={rental.id} className="hover:shadow-lg">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold">{rental.name}</h3>
+                            {rental.maps_url && <a href={rental.maps_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">📍 Maps</a>}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
+                            <div><p className="text-gray-500">Tipe</p><p className="font-semibold">{rental.type}</p></div>
+                            <div><p className="text-gray-500">Kapasitas</p><p className="font-semibold">{rental.passenger_capacity} orang</p></div>
+                            <div><p className="text-gray-500">Harga/Hari</p><p className="font-semibold">Rp {rental.price_per_day.toLocaleString()}</p></div>
+                            <div><p className="text-gray-500">Supir</p><p className="font-semibold">{rental.driver_name}</p></div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditRental(rental)} className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteRental(rental.id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Therapy Tab */}
+        <AnimatePresence>
+          {activeTab === 'therapy' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {!isAddingTherapy && editingTherapyId === null && (
+                <motion.div className="mb-6">
+                  <Button onClick={handleAddTherapy} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+                    <FiPlus size={20} /> Tambah Terapi
+                  </Button>
+                </motion.div>
+              )}
+              {!isAddingTherapy && editingTherapyId === null && (
+                <motion.div className="mb-6">
+                  <Input placeholder="Cari terapi..." value={searchTherapy} onChange={(e) => setSearchTherapy(e.target.value)} />
+                </motion.div>
+              )}
+              {(isAddingTherapy || editingTherapyId !== null) && (
+                <motion.div className="mb-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardHeader><CardTitle>{isAddingTherapy ? 'Tambah Terapi' : 'Edit Terapi'}</CardTitle></CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Nama Terapi" value={therapyFormData.therapy_name || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, therapy_name: e.target.value })} />
+                        <Select label="Tipe Terapi" value={therapyFormData.therapy_type || 'fisioterapi'} onChange={(e) => setTherapyFormData({ ...therapyFormData, therapy_type: e.target.value as any })}>
+                          <option value="fisioterapi">Fisioterapi</option>
+                          <option value="okupasi">Okupasi</option>
+                          <option value="wicara">Wicara</option>
+                          <option value="akupunktur">Akupunktur</option>
+                          <option value="rehab">Rehab</option>
+                        </Select>
+                        <Input label="Harga/Sesi" type="number" value={therapyFormData.price_per_session || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, price_per_session: parseInt(e.target.value) })} />
+                        <Input label="Durasi (menit)" type="number" value={therapyFormData.duration_minutes || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, duration_minutes: parseInt(e.target.value) })} />
+                        <Input label="Link Google Maps" value={therapyFormData.maps_url || ''} onChange={(e) => setTherapyFormData({ ...therapyFormData, maps_url: e.target.value })} />
+                        <ImageUpload label="Icon/Foto" value={therapyFormData.icon_url} onChange={(val) => setTherapyFormData({ ...therapyFormData, icon_url: val })} />
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button onClick={handleSaveTherapy} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                          <FiSave size={18} /> Simpan
+                        </button>
+                        <button onClick={handleCancelTherapy} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                          <FiX size={18} /> Batal
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+              <motion.div className="space-y-4">
+                {filteredTherapies.map((therapy) => (
+                  <Card key={therapy.id} className="hover:shadow-lg">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold">{therapy.therapy_name}</h3>
+                            {therapy.maps_url && <a href={therapy.maps_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">📍 Maps</a>}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
+                            <div><p className="text-gray-500">Tipe</p><p className="font-semibold capitalize">{therapy.therapy_type}</p></div>
+                            <div><p className="text-gray-500">Harga/Sesi</p><p className="font-semibold">Rp {therapy.price_per_session.toLocaleString()}</p></div>
+                            <div><p className="text-gray-500">Durasi</p><p className="font-semibold">{therapy.duration_minutes} menit</p></div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditTherapy(therapy)} className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteTherapy(therapy.id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Hotels Tab */}
+        <AnimatePresence>
+          {activeTab === 'hotels' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {!isAddingHotel && editingHotelId === null && (
+                <motion.div className="mb-6">
+                  <Button onClick={handleAddHotel} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
+                    <FiPlus size={20} /> Tambah Hotel
+                  </Button>
+                </motion.div>
+              )}
+              {!isAddingHotel && editingHotelId === null && (
+                <motion.div className="mb-6">
+                  <Input placeholder="Cari hotel..." value={searchHotel} onChange={(e) => setSearchHotel(e.target.value)} />
+                </motion.div>
+              )}
+              {(isAddingHotel || editingHotelId !== null) && (
+                <motion.div className="mb-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardHeader><CardTitle>{isAddingHotel ? 'Tambah Hotel' : 'Edit Hotel'}</CardTitle></CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Nama Hotel" value={hotelFormData.name || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, name: e.target.value })} />
+                        <Input label="Alamat" value={hotelFormData.address || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, address: e.target.value })} />
+                        <Input label="Telepon" value={hotelFormData.phone || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, phone: e.target.value })} />
+                        <Input label="Email" value={hotelFormData.email || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, email: e.target.value })} />
+                        <Input label="Bintang" type="number" value={hotelFormData.star_rating || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, star_rating: parseInt(e.target.value) })} />
+                        <Input label="Harga/Malam (Min)" type="number" value={hotelFormData.price_per_night_min || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, price_per_night_min: parseInt(e.target.value) })} />
+                        <Input label="Jarak ke RS (km)" type="number" value={hotelFormData.distance_to_hospital || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, distance_to_hospital: parseFloat(e.target.value) })} />
+                        <Input label="Link Google Maps" value={hotelFormData.maps_url || ''} onChange={(e) => setHotelFormData({ ...hotelFormData, maps_url: e.target.value })} />
+                        <ImageUpload label="Icon/Foto" value={hotelFormData.icon_url} onChange={(val) => setHotelFormData({ ...hotelFormData, icon_url: val })} />
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button onClick={handleSaveHotel} className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                          <FiSave size={18} /> Simpan
+                        </button>
+                        <button onClick={handleCancelHotel} className="flex items-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                          <FiX size={18} /> Batal
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+              <motion.div className="space-y-4">
+                {filteredHotels.map((hotel) => (
+                  <Card key={hotel.id} className="hover:shadow-lg">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold">{hotel.name}</h3>
+                            {hotel.maps_url && <a href={hotel.maps_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">📍 Maps</a>}
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 text-sm">
+                            <div><p className="text-gray-500">Bintang</p><p className="font-semibold">{'⭐'.repeat(hotel.star_rating)}</p></div>
+                            <div><p className="text-gray-500">Mulai dari</p><p className="font-semibold">Rp {hotel.price_per_night_min.toLocaleString()}</p></div>
+                            <div><p className="text-gray-500">Jarak RS</p><p className="font-semibold">{hotel.distance_to_hospital} km</p></div>
+                            <div><p className="text-gray-500">Telepon</p><p className="font-semibold">{hotel.phone}</p></div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleEditHotel(hotel)} className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><FiEdit2 size={18} /></button>
+                          <button onClick={() => handleDeleteHotel(hotel.id)} className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"><FiTrash2 size={18} /></button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Settings Tab */}
+        <AnimatePresence>
+          {activeTab === 'settings' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Card className="bg-white border-gray-200">
+                <CardHeader className="flex flex-row justify-between items-center">
+                  <CardTitle>Pengaturan Platform</CardTitle>
+                  <Button onClick={() => setIsEditingSettings(!isEditingSettings)} className={isEditingSettings ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}>
+                    {isEditingSettings ? <><FiX className="mr-2"/> Batal</> : <><FiEdit2 className="mr-2"/> Edit Pengaturan</>}
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <Input 
+                          label="Nama Platform" 
+                          value={platformName} 
+                          onChange={(e) => setPlatformName(e.target.value)} 
+                          disabled={!isEditingSettings} 
+                        />
+                        <ImageUpload 
+                          label="Ikon Platform" 
+                          value={platformIcon} 
+                          onChange={(val) => setPlatformIcon(val)} 
+                          disabled={!isEditingSettings} 
+                        />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Deskripsi Platform</label>
+                          <textarea 
+                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500 transition-colors" 
+                            rows={6}
+                            value={platformDescription} 
+                            onChange={(e) => setPlatformDescription(e.target.value)} 
+                            disabled={!isEditingSettings} 
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <Input 
+                          label="Email Kontak" 
+                          value={platformEmail} 
+                          onChange={(e) => setPlatformEmail(e.target.value)} 
+                          disabled={!isEditingSettings} 
+                        />
+                        <Input 
+                          label="Telepon Kontak" 
+                          value={platformPhone} 
+                          onChange={(e) => setPlatformPhone(e.target.value)} 
+                          disabled={!isEditingSettings} 
+                        />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Alamat</label>
+                          <textarea 
+                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500 transition-colors" 
+                            rows={4}
+                            value={platformAddress} 
+                            onChange={(e) => setPlatformAddress(e.target.value)} 
+                            disabled={!isEditingSettings} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {isEditingSettings && (
+                      <div className="flex justify-end mt-4">
+                        <Button onClick={() => {
+                          setIsEditingSettings(false);
+                          alert("Pengaturan berhasil disimpan!");
+                        }} className="bg-green-600 hover:bg-green-700 flex items-center gap-2">
+                          <FiSave size={18} /> Simpan Pengaturan
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}

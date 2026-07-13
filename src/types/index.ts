@@ -85,6 +85,8 @@ export interface Hospital {
   has_ambulance: boolean
   facilities: string[]
   images: string[]
+  icon_url?: string
+  maps_url?: string
 }
 
 // Doctor Types
@@ -106,6 +108,8 @@ export interface Doctor {
   certifications: string[]
   rating: number
   is_available: boolean
+  icon_url?: string
+  maps_url?: string
 }
 
 // Therapy Types
@@ -119,6 +123,8 @@ export interface Therapy {
   price_per_session: number
   duration_minutes: number
   facilities: string[]
+  icon_url?: string
+  maps_url?: string
 }
 
 // Hotel Types
@@ -137,6 +143,8 @@ export interface Hotel {
   price_per_night_max: number
   distance_to_hospital: number
   has_disability_access: boolean
+  icon_url?: string
+  maps_url?: string
 }
 
 // Rental Car Types
@@ -151,6 +159,8 @@ export interface RentalCar {
   is_available: boolean
   driver_name: string
   driver_phone: string
+  icon_url?: string
+  maps_url?: string
 }
 
 // Tour Package Types
